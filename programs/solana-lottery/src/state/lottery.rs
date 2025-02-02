@@ -18,26 +18,42 @@ pub enum LotteryType {
     Monthly  // 10 USDC, 30d, min 1000 USDC
 }
 
+// Split into smaller components to reduce stack usage
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct LotteryConfig {
+    pub ticket_price: u64,
+    pub min_pool_amount: u64,
+    pub pyth_price_account: Pubkey,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct LotteryStateData {
+    pub total_tickets: u64,
+    pub current_pool_amount: u64,
+    pub prize_amount: u64,
+    pub treasury_fee: u64,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
+pub struct LotteryTiming {
+    pub start_time: i64,
+    pub end_time: i64,
+    pub last_draw_timestamp: i64,
+}
+
 #[account]
 #[derive(Default)]
 pub struct Lottery {
     pub id: u64,
     pub lottery_type: LotteryType,
-    pub ticket_price: u64,
-    pub total_tickets: u64,
-    pub start_time: i64,
-    pub end_time: i64,
     pub state: LotteryState,
     pub bump: u8,
-    pub pyth_price_account: Pubkey,  // Pyth price feed account
+    pub config: LotteryConfig,
+    pub timing: LotteryTiming,
+    pub state_data: LotteryStateData,
     pub winner_ticket: Option<u64>,
     pub winner: Option<Pubkey>,
     pub prize_claimed: bool,
-    pub last_draw_timestamp: i64,
-    pub prize_amount: u64,
-    pub treasury_fee: u64,
-    pub min_pool_amount: u64,
-    pub current_pool_amount: u64,
     pub winning_numbers: [u8; 6],
 }
 
@@ -45,21 +61,14 @@ impl Lottery {
     pub const SPACE: usize = 8 + // discriminator
         8 + // id
         1 + // lottery_type
-        8 + // ticket_price
-        8 + // total_tickets
-        8 + // start_time
-        8 + // end_time
         1 + // state
         1 + // bump
-        32 + // pyth_price_account
+        (8 + 8 + 32) + // config
+        (8 + 8 + 8) + // timing
+        (8 + 8 + 8 + 8) + // state_data
         9 + // winner_ticket (Option)
         33 + // winner (Option<Pubkey>)
         1 + // prize_claimed
-        8 + // last_draw_timestamp
-        8 + // prize_amount
-        8 + // treasury_fee
-        8 + // min_pool_amount
-        8 + // current_pool_amount
         6; // winning_numbers
 
     pub fn get_min_pool_amount(&self) -> u64 {

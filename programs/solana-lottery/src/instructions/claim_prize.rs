@@ -24,7 +24,7 @@ pub struct ClaimPrize<'info> {
         bump = lottery.bump,
         constraint = !lottery.prize_claimed @ LotteryError::PrizeAlreadyClaimed,
         constraint = lottery.state == LotteryState::Completed @ LotteryError::InvalidLotteryState,
-        constraint = !utils::is_claim_window_expired(lottery.last_draw_timestamp)? @ LotteryError::ClaimWindowExpired
+        constraint = !utils::is_claim_window_expired(lottery.timing.last_draw_timestamp)? @ LotteryError::ClaimWindowExpired
     )]
     pub lottery: Account<'info, Lottery>,
 
@@ -46,29 +46,19 @@ pub struct ClaimPrize<'info> {
     pub clock: Sysvar<'info, Clock>,
 }
 
-impl<'info> ClaimPrize<'info> {
-    pub fn transfer_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
-        CpiContext::new(
-            self.token_program.to_account_info(),
-            Transfer {
-                from: self.lottery_token_account.to_account_info(),
-                to: self.winner_token_account.to_account_info(),
-                authority: self.lottery.to_account_info(),
-            },
-        )
-    }
-}
-
 pub fn handler(ctx: Context<ClaimPrize>, user_numbers: [u8; 6]) -> Result<()> {
-    let lottery = &mut ctx.accounts.lottery;
     let clock = &ctx.accounts.clock;
+    let winner_key = ctx.accounts.winner.key();
     
-    // Calculate matching digits
-    let matching_digits = utils::count_matching_digits(&lottery.winning_numbers, &user_numbers);
-    require!(matching_digits >= 3, LotteryError::NotWinner);
-    
-    // Calculate prize amount based on matching digits
-    let prize_amount = utils::calculate_prize_amount(matching_digits, lottery.prize_amount)?;
+    // Count matching digits and calculate prize before mutating lottery
+    let (matching_digits, prize_amount) = {
+        let lottery = &ctx.accounts.lottery;
+        let matching_digits = utils::count_matching_digits(&user_numbers, &lottery.winning_numbers);
+        require!(matching_digits >= 3, LotteryError::NotWinner);
+        
+        let prize_amount = utils::calculate_prize_amount(matching_digits, lottery.state_data.prize_amount)?;
+        (matching_digits, prize_amount)
+    };
     
     // Transfer prize to winner
     token::transfer(
@@ -77,24 +67,25 @@ pub fn handler(ctx: Context<ClaimPrize>, user_numbers: [u8; 6]) -> Result<()> {
             Transfer {
                 from: ctx.accounts.lottery_token_account.to_account_info(),
                 to: ctx.accounts.winner_token_account.to_account_info(),
-                authority: lottery.to_account_info(),
+                authority: ctx.accounts.lottery.to_account_info(),
             },
         ),
         prize_amount
     )?;
     
-    // Update lottery state
+    // Update lottery state after transfer
+    let lottery = &mut ctx.accounts.lottery;
+    lottery.winner = Some(winner_key);
     lottery.prize_claimed = true;
-    lottery.winner = Some(ctx.accounts.winner.key());
     
-    // Emit prize claim event
+    // Emit claim event
     emit!(PrizeClaimed {
         lottery_id: lottery.id,
-        winner: ctx.accounts.winner.key(),
+        winner: winner_key,
         amount: prize_amount,
         timestamp: clock.unix_timestamp,
         matching_digits,
     });
-
+    
     Ok(())
 }

@@ -53,8 +53,8 @@ pub fn handler(ctx: Context<DistributePrize>) -> Result<()> {
     // Calculate remaining amount before mutating lottery
     let remaining_amount = {
         let lottery = &ctx.accounts.lottery;
-        lottery.current_pool_amount
-            .checked_sub(lottery.prize_amount)
+        lottery.state_data.current_pool_amount
+            .checked_sub(lottery.state_data.prize_amount)
             .ok_or(LotteryError::ArithmeticError)?
     };
     
@@ -73,16 +73,15 @@ pub fn handler(ctx: Context<DistributePrize>) -> Result<()> {
     
     // Update lottery state after transfer
     let lottery = &mut ctx.accounts.lottery;
-    let _treasury = &mut ctx.accounts.treasury;
     lottery.state = LotteryState::Expired;
     
     // Emit distribution event
     emit!(PrizeDistributed {
         lottery_id: lottery.id,
-        prize_amount: lottery.prize_amount,
-        treasury_fee: lottery.treasury_fee,
+        prize_amount: lottery.state_data.prize_amount,
+        treasury_fee: lottery.state_data.treasury_fee,
         timestamp: clock.unix_timestamp,
     });
-
+    
     Ok(())
 } 

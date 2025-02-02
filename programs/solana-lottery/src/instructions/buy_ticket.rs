@@ -14,7 +14,7 @@ pub struct BuyTicket<'info> {
         seeds = [b"lottery", lottery.lottery_type.discriminant().to_le_bytes().as_ref()],
         bump = lottery.bump,
         constraint = lottery.state == LotteryState::Open @ LotteryError::LotteryNotActive,
-        constraint = Clock::get()?.unix_timestamp < lottery.end_time @ LotteryError::LotteryNotActive
+        constraint = Clock::get()?.unix_timestamp < lottery.timing.end_time @ LotteryError::LotteryNotActive
     )]
     pub lottery: Account<'info, Lottery>,
 
@@ -43,11 +43,11 @@ pub fn handler(ctx: Context<BuyTicket>, amount: u8) -> Result<()> {
     utils::validate_ticket_purchase(amount)?;
     
     // Calculate total cost
-    let total_cost = (lottery.ticket_price as u128)
+    let total_cost = (lottery.config.ticket_price as u128)
         .checked_mul(amount as u128)
         .ok_or(LotteryError::ArithmeticError)? as u64;
     
-    // Transfer USDC tokens
+    // Transfer tokens
     token::transfer(
         CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -61,13 +61,13 @@ pub fn handler(ctx: Context<BuyTicket>, amount: u8) -> Result<()> {
     )?;
     
     // Update lottery state
-    lottery.total_tickets = lottery.total_tickets
+    lottery.state_data.total_tickets = lottery.state_data.total_tickets
         .checked_add(amount as u64)
         .ok_or(LotteryError::ArithmeticError)?;
-    
-    lottery.current_pool_amount = lottery.current_pool_amount
+        
+    lottery.state_data.current_pool_amount = lottery.state_data.current_pool_amount
         .checked_add(total_cost)
         .ok_or(LotteryError::ArithmeticError)?;
-
+    
     Ok(())
 }

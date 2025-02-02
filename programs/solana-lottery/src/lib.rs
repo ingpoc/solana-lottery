@@ -7,6 +7,17 @@ pub mod errors;
 pub mod utils;
 pub mod instructions;
 
+use crate::state::LotteryType;
+use crate::instructions::{
+    create_lottery::CreateLottery,
+    buy_ticket::BuyTicket,
+    schedule_draw::ScheduleDraw,
+    execute_draw::ExecuteDraw,
+    claim_prize::ClaimPrize,
+    distribute_prize::DistributePrize,
+    recycle_unclaimed::RecycleUnclaimed,
+    withdraw_treasury::{WithdrawTreasury, handler as withdraw_treasury_handler},
+};
 
 #[program]
 pub mod solana_lottery {

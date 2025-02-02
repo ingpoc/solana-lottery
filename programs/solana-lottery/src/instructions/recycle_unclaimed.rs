@@ -22,7 +22,7 @@ pub struct RecycleUnclaimed<'info> {
         bump = lottery.bump,
         constraint = lottery.state == LotteryState::Completed @ LotteryError::InvalidLotteryState,
         constraint = !lottery.prize_claimed @ LotteryError::PrizeAlreadyClaimed,
-        constraint = utils::is_claim_window_expired(lottery.last_draw_timestamp)? @ LotteryError::ClaimWindowExpired
+        constraint = utils::is_claim_window_expired(lottery.timing.last_draw_timestamp)? @ LotteryError::ClaimWindowExpired
     )]
     pub lottery: Account<'info, Lottery>,
 
@@ -56,7 +56,7 @@ pub fn handler(ctx: Context<RecycleUnclaimed>) -> Result<()> {
     // Calculate unclaimed amount before mutating lottery
     let unclaimed_amount = {
         let lottery = &ctx.accounts.lottery;
-        lottery.current_pool_amount
+        lottery.state_data.current_pool_amount
     };
     
     // Transfer unclaimed funds to treasury
@@ -74,28 +74,27 @@ pub fn handler(ctx: Context<RecycleUnclaimed>) -> Result<()> {
     
     // Update lottery state after transfer
     let lottery = &mut ctx.accounts.lottery;
-    let _treasury = &mut ctx.accounts.treasury;
     
     // Reset lottery for new round
     lottery.state = LotteryState::Created;
-    lottery.total_tickets = 0;
+    lottery.state_data.total_tickets = 0;
     lottery.winner = None;
     lottery.winner_ticket = None;
     lottery.prize_claimed = false;
-    lottery.prize_amount = 0;
-    lottery.treasury_fee = 0;
-    lottery.current_pool_amount = 0;
-    lottery.start_time = clock.unix_timestamp;
-    lottery.end_time = clock.unix_timestamp + lottery.get_duration();
+    lottery.state_data.prize_amount = 0;
+    lottery.state_data.treasury_fee = 0;
+    lottery.state_data.current_pool_amount = 0;
+    lottery.timing.start_time = clock.unix_timestamp;
+    lottery.timing.end_time = clock.unix_timestamp + lottery.get_duration();
     
     // Emit recycle event
     emit!(LotteryRecycled {
         lottery_id: lottery.id,
         unclaimed_amount,
-        new_end_time: lottery.end_time,
+        new_end_time: lottery.timing.end_time,
         timestamp: clock.unix_timestamp,
         lottery_type: lottery.lottery_type,
     });
-
+    
     Ok(())
 }
