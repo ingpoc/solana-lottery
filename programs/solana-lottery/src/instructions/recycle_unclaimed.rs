@@ -74,7 +74,7 @@ pub fn handler(ctx: Context<RecycleUnclaimed>) -> Result<()> {
     
     // Update lottery state after transfer
     let lottery = &mut ctx.accounts.lottery;
-    let treasury = &mut ctx.accounts.treasury;
+    let _treasury = &mut ctx.accounts.treasury;
     
     // Reset lottery for new round
     lottery.state = LotteryState::Created;

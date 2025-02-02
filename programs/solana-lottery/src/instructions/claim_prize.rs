@@ -60,15 +60,15 @@ impl<'info> ClaimPrize<'info> {
 }
 
 pub fn handler(ctx: Context<ClaimPrize>, user_numbers: [u8; 6]) -> Result<()> {
+    let lottery = &mut ctx.accounts.lottery;
     let clock = &ctx.accounts.clock;
     
-    // Calculate prize amount before mutating lottery
-    let prize_amount = {
-        let lottery = &ctx.accounts.lottery;
-        let matching_digits = utils::count_matching_digits(&user_numbers, &lottery.winning_numbers);
-        require!(matching_digits >= 3, LotteryError::NotWinner);
-        utils::calculate_prize_amount(matching_digits, lottery.prize_amount)?
-    };
+    // Calculate matching digits
+    let matching_digits = utils::count_matching_digits(&lottery.winning_numbers, &user_numbers);
+    require!(matching_digits >= 3, LotteryError::NotWinner);
+    
+    // Calculate prize amount based on matching digits
+    let prize_amount = utils::calculate_prize_amount(matching_digits, lottery.prize_amount)?;
     
     // Transfer prize to winner
     token::transfer(
@@ -77,14 +77,13 @@ pub fn handler(ctx: Context<ClaimPrize>, user_numbers: [u8; 6]) -> Result<()> {
             Transfer {
                 from: ctx.accounts.lottery_token_account.to_account_info(),
                 to: ctx.accounts.winner_token_account.to_account_info(),
-                authority: ctx.accounts.lottery.to_account_info(),
+                authority: lottery.to_account_info(),
             },
         ),
         prize_amount
     )?;
     
-    // Update lottery state after transfer
-    let lottery = &mut ctx.accounts.lottery;
+    // Update lottery state
     lottery.prize_claimed = true;
     lottery.winner = Some(ctx.accounts.winner.key());
     

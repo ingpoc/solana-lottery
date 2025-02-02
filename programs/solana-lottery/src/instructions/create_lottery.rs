@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 use crate::state::lottery::{Lottery, LotteryState, LotteryType};
-use crate::errors::LotteryError;
 use crate::utils;
 
 #[derive(Accounts)]

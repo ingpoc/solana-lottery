@@ -15,6 +15,124 @@ bytemuck = "1.14.3"
 
 ## Core Rules
 
+1. **Stack Management**
+   - Keep function frame size under 4096 bytes
+   - Split large structs into smaller components
+   - Use references instead of owned values where possible
+   - Avoid large stack allocations in loops
+   - Monitor stack usage in instruction handlers
+
+2. **Module Organization**
+   - Use explicit imports instead of glob imports
+   - Organize imports at module level
+   - Keep module hierarchy flat
+   - Use re-exports in lib.rs for public interfaces
+   - Avoid circular dependencies
+
+3. **Code Optimization**
+   - Remove unused imports and variables
+   - Use const generics for fixed-size arrays
+   - Minimize clone operations
+   - Use static dispatch over dynamic dispatch
+   - Keep instruction data compact
+
+4. **Dependency Management**
+   - NEVER modify versions in Cargo.toml
+   - NEVER add new dependencies
+   - NEVER suggest dependency updates
+   - Adapt code to work with existing dependencies
+   - Change code to use pyth-sdk-solana instead of switchboard
+
+5. **Cargo Configuration**
+   - Always specify `resolver = "2"` in workspace Cargo.toml
+   - Only use supported feature flags:
+     - `cpi`
+     - `default`
+     - `no-entrypoint`
+     - `no-idl`
+     - `no-log-ix-name`
+   - Never add custom feature flags without proper declaration
+   - Keep feature flags minimal and documented
+   - Use conditional compilation sparingly
+
+## Implementation Guidelines
+
+1. **Account Structure**
+   - Keep account sizes minimal
+   - Use packed representations
+   - Avoid nested account structures
+   - Use discriminators for account types
+   - Document size constraints
+
+2. **Instruction Design**
+   - Split complex instructions
+   - Minimize account context size
+   - Use builder pattern for complex params
+   - Document stack requirements
+   - Handle errors explicitly
+
+3. **Testing Requirements**
+   - Test stack limits explicitly
+   - Verify account sizes
+   - Check error conditions
+   - Test with max-sized inputs
+   - Document memory usage
+
+4. **Security Practices**
+   - Validate all inputs
+   - Check account ownership
+   - Verify account constraints
+   - Use safe math operations
+   - Document security assumptions
+
+5. **Error Handling**
+   - Use custom error types
+   - Keep error enums small
+   - Document error conditions
+   - Use result combinators
+   - Avoid panics
+
+## Development Workflow
+
+1. **Before Implementation**
+   - Plan account structure
+   - Calculate stack usage
+   - Design error handling
+   - Document constraints
+   - Review dependencies
+
+2. **During Development**
+   - Monitor stack usage
+   - Check unused imports
+   - Verify account sizes
+   - Test error paths
+   - Document changes
+
+3. **Code Review**
+   - Check stack limits
+   - Verify import usage
+   - Review error handling
+   - Test constraints
+   - Document findings
+
+## Maintenance
+
+1. **Code Cleanup**
+   - Remove unused code
+   - Optimize imports
+   - Check dependencies
+   - Update documentation
+   - Verify constraints
+
+2. **Performance**
+   - Monitor stack usage
+   - Optimize hot paths
+   - Reduce allocations
+   - Document bottlenecks
+   - Test edge cases
+
+## Core Rules
+
 1. **Dependency Preservation**
    - NEVER modify versions in Cargo.toml
    - NEVER add new dependencies
@@ -33,30 +151,19 @@ bytemuck = "1.14.3"
    - Maintain security-first approach
    - Ensure code compatibility with fixed dependencies
 
- 4. **Code Build Process**
-   - Run `anchor build 2> docs/errors.txt`
-   - Review the errors
-   - Make the necessary changes
-   - Run `anchor build 2> docs/errors.txt` again
-   - Repeat until the build is successful
-
-
-## Code Analysis Process
-
-1. **Before Modifications**
-   - Check existing code structure
-   - Identify dependency usage
-   - Plan adaptations within current constraints
-
-2. **During Implementation**
-   - Verify dependency compatibility
-   - Use only available features
-   - Document any limitations
-
-3. **After Changes**
-   - Validate against dependencies
-   - Run `anchor build 2> docs/errors.txt`
-   - Review for compatibility issues
+4. **Code Analysis Process**
+   - Before Modifications
+     - Check existing code structure
+     - Identify dependency usage
+     - Plan adaptations within current constraints
+   - During Implementation
+     - Verify dependency compatibility
+     - Use only available features
+     - Document any limitations
+   - After Changes
+     - Validate against dependencies
+     - Run `anchor build 2> docs/errors.txt`
+     - Review for compatibility issues
 
 ## Adaptation Guidelines
 

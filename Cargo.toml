@@ -1,9 +1,10 @@
 
 [workspace]
-members = [
-    "programs/*"
-]
 resolver = "2"
+members = [
+    "programs/solana-lottery"
+]
+
 
 [profile.release]
 overflow-checks = true

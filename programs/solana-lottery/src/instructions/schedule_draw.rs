@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use crate::state::lottery::{Lottery, LotteryState};
 use crate::errors::LotteryError;
-use crate::utils;
 
 #[event]
 pub struct DrawScheduled {
