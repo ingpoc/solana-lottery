@@ -47,9 +47,6 @@ pub mod solana_lottery {
         withdraw_treasury_handler(ctx, amount)
     }
 
-    pub fn process_vrf_callback(ctx: Context<ProcessVrfCallback>) -> Result<()> {
-        instructions::process_vrf_callback::handler(ctx)
-    }
 }
 
 #[derive(Accounts)]

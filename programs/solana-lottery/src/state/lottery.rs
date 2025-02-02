@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 
-
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LotteryState {
     #[default]
