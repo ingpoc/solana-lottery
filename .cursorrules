@@ -1,0 +1,140 @@
+# Cursor Rules for Solana Lottery Development
+
+## Fixed Dependencies
+```toml
+clockwork-sdk = "1.4.2"  # No change needed
+spl-token-2022 = { version = "0.9", features = ["no-entrypoint"] }  # No change needed
+pyth-sdk-solana = "0.10.3"
+solana-program = "2.1.11"
+borsh = "1.5.5"
+anchor-spl = "0.30.1"
+anchor-lang = "0.30.1"
+sha2 = "0.10.8"
+bytemuck = "1.14.3"
+```
+
+## Core Rules
+
+1. **Dependency Preservation**
+   - NEVER modify versions in Cargo.toml
+   - NEVER add new dependencies
+   - NEVER suggest dependency updates
+   - Adapt code to work with existing dependencies
+   - Change code to use pyth-sdk-solana instead of switchboard
+
+2. **Code Modification Strategy**
+   - Use existing dependency features
+   - Refactor code to match dependency versions
+   - Alert user if functionality needs adaptation
+   - Remove unusued imports
+
+3. **Implementation Requirements**
+   - Follow the implementation plan structure
+   - Maintain security-first approach
+   - Ensure code compatibility with fixed dependencies
+
+## Code Analysis Process
+
+1. **Before Modifications**
+   - Check existing code structure
+   - Identify dependency usage
+   - Plan adaptations within current constraints
+
+2. **During Implementation**
+   - Verify dependency compatibility
+   - Use only available features
+   - Document any limitations
+
+3. **After Changes**
+   - Validate against dependencies
+   - Run `anchor build 2> docs/errors.txt`
+   - Review for compatibility issues
+
+## Adaptation Guidelines
+
+1. **Pyth Oracle Integration**
+   - Use pyth-sdk-solana v0.10.3 features only
+   - Adapt randomness generation to available methods
+   - Document any version-specific limitations
+
+2. **Token Handling**
+   - Use spl-token-2022 v0.9 features
+   - Implement within current version constraints
+   - No experimental features
+
+3. **Automation**
+   - Use clockwork-sdk v1.4.2 capabilities
+   - Adapt scheduling to available features
+   - Document any version limitations
+
+## Error Handling
+
+1. **Build Errors**
+   - Document in docs/errors.txt
+   - Propose solutions within dependency constraints
+   - Never suggest dependency updates
+
+2. **Runtime Errors**
+   - Handle within current versions
+   - Use available error types
+   - Document any version-specific workarounds
+
+## Security Considerations
+
+1. **Version-Specific Security**
+   - Implement security features available in current versions
+   - Document any security implications
+   - Use established patterns for current versions
+
+2. **Validation Requirements**
+   - Use existing dependency validation methods
+   - Implement additional checks if needed
+   - Document any version-specific limitations
+
+## Documentation Requirements
+
+1. **Code Comments**
+   - Document dependency version compatibility
+   - Explain any version-specific implementations
+   - Note any limitations due to versions
+
+2. **Implementation Notes**
+   - Document design decisions based on versions
+   - Explain any workarounds needed
+   - Maintain clear upgrade paths
+
+## Testing Strategy
+
+1. **Test Implementation**
+   - Use testing features from current versions
+   - Document test coverage within constraints
+   - Verify compatibility with all dependencies
+
+2. **Version Verification**
+   - Test against specific versions
+   - Document any version-specific behavior
+   - Ensure consistent behavior across environments
+
+## Deployment Considerations
+
+1. **Build Process**
+   - Use `anchor build` with current versions
+   - Document any build flags needed
+   - Maintain deployment scripts
+
+2. **Environment Setup**
+   - Document required toolchain versions
+   - Specify exact dependency versions
+   - Maintain consistent development environment
+
+## Change Management
+
+1. **Code Reviews**
+   - Verify dependency compatibility
+   - Check for version-specific issues
+   - Document any version constraints
+
+2. **Updates**
+   - Document future update paths
+   - Note any version-locked features
+   - Maintain upgrade documentation
