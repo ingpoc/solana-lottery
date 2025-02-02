@@ -33,6 +33,14 @@ bytemuck = "1.14.3"
    - Maintain security-first approach
    - Ensure code compatibility with fixed dependencies
 
+ 4. **Code Build Process**
+   - Run `anchor build 2> docs/errors.txt`
+   - Review the errors
+   - Make the necessary changes
+   - Run `anchor build 2> docs/errors.txt` again
+   - Repeat until the build is successful
+
+
 ## Code Analysis Process
 
 1. **Before Modifications**
