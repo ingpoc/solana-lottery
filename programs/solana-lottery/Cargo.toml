@@ -15,6 +15,7 @@ no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
 anchor-debug = ["anchor-lang/anchor-debug"]
+custom-heap = []
 
 [dependencies]
 clockwork-sdk = "1.4.2"  # No change needed
