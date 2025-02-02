@@ -16,7 +16,7 @@ use crate::instructions::{
     claim_prize::ClaimPrize,
     distribute_prize::DistributePrize,
     recycle_unclaimed::RecycleUnclaimed,
-    withdraw_treasury::{WithdrawTreasury, handler as withdraw_treasury_handler},
+   
 };
 
 #[program]
