@@ -7,19 +7,17 @@ pub mod errors;
 pub mod utils;
 pub mod instructions;
 
-use crate::{
-    instructions::{
-        create_lottery::{self, CreateLottery},
-        buy_ticket::{self, BuyTicket},
-        schedule_draw::{self, ScheduleDraw},
-        execute_draw::{self, ExecuteDraw},
-        claim_prize::{self, ClaimPrize},
-        distribute_prize::{self, DistributePrize},
-        recycle_unclaimed::{self, RecycleUnclaimed},
-        withdraw_treasury::{self, WithdrawTreasury},
-    },
-    state::LotteryType,
+use instructions::{
+    create_lottery::{self, CreateLottery},
+    buy_ticket::{self, BuyTicket},
+    schedule_draw::{self, ScheduleDraw},
+    execute_draw::{self, ExecuteDraw},
+    claim_prize::{self, ClaimPrize},
+    distribute_prize::{self, DistributePrize},
+    recycle_unclaimed::{self, RecycleUnclaimed},
+    withdraw_treasury::{self, WithdrawTreasury},
 };
+use state::LotteryType;
 
 #[program]
 pub mod solana_lottery {
