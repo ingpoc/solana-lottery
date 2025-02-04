@@ -7,25 +7,23 @@ pub mod errors;
 pub mod utils;
 pub mod instructions;
 
-// Re-export instruction types
-pub use instructions::{
-    create_lottery::CreateLottery,
-    buy_ticket::BuyTicket,
-    schedule_draw::ScheduleDraw,
-    execute_draw::ExecuteDraw,
-    claim_prize::ClaimPrize,
-    distribute_prize::DistributePrize,
-    recycle_unclaimed::RecycleUnclaimed,
-    withdraw_treasury::WithdrawTreasury,
+use crate::{
+    instructions::{
+        create_lottery::{self, CreateLottery},
+        buy_ticket::{self, BuyTicket},
+        schedule_draw::{self, ScheduleDraw},
+        execute_draw::{self, ExecuteDraw},
+        claim_prize::{self, ClaimPrize},
+        distribute_prize::{self, DistributePrize},
+        recycle_unclaimed::{self, RecycleUnclaimed},
+        withdraw_treasury::{self, WithdrawTreasury},
+    },
+    state::LotteryType,
 };
-
-// Re-export state types
-pub use state::LotteryType;
 
 #[program]
 pub mod solana_lottery {
     use super::*;
-    use crate::instructions::*;
 
     pub fn create_lottery(ctx: Context<CreateLottery>, lottery_type: LotteryType) -> Result<()> {
         create_lottery::handler(ctx, lottery_type)
